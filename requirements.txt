@@ -7,4 +7,4 @@ langchain-google-genai
 faiss-cpu
 pypdf
 firebase-admin
-gunicorn
+gunicornPyPDF2
