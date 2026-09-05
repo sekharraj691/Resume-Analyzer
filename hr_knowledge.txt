@@ -1,0 +1,31 @@
+HR Interview Preparation Knowledge Base
+
+Technical Skills:
+Python
+Java
+Machine Learning
+SQL
+Flask
+AI
+Cloud Computing
+Firebase
+HTML
+CSS
+JavaScript
+
+HR evaluates:
+Communication
+Problem Solving
+Teamwork
+Leadership
+Technical Skills
+Projects
+Internships
+Certifications
+
+ATS systems prefer:
+Keywords
+Clean formatting
+Relevant experience
+Projects
+Skills matching job description

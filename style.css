@@ -1,0 +1,54 @@
+body {
+
+    font-family: Arial;
+    background: #0f172a;
+    color: white;
+    padding: 30px;
+}
+
+.container {
+
+    max-width: 900px;
+    margin: auto;
+}
+
+h1 {
+
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+form {
+
+    background: #1e293b;
+    padding: 20px;
+    border-radius: 10px;
+}
+
+input {
+
+    margin-bottom: 20px;
+}
+
+button {
+
+    padding: 10px 20px;
+    background: #38bdf8;
+    border: none;
+    color: black;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.result {
+
+    margin-top: 30px;
+    background: #1e293b;
+    padding: 20px;
+    border-radius: 10px;
+}
+
+pre {
+
+    white-space: pre-wrap;
+}
