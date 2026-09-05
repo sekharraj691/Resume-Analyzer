@@ -8,6 +8,5 @@ faiss-cpu
 pypdf
 firebase-admin
 gunicorn
-PyPDF2langchain-groq
-langchain-groq
+PyPDF2
 langchain-groq
