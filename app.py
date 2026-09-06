@@ -1,37 +1,65 @@
+```python
+import os
+
 from flask import Flask, request, render_template_string
 from dotenv import load_dotenv
-
-import os
 
 from resume_parser import extract_text_from_pdf
 from rag_pipeline import build_rag
 
-# LOAD ENV VARIABLES
+
+# ==========================================
+# LOAD ENVIRONMENT VARIABLES
+# ==========================================
 load_dotenv()
 
+
+# ==========================================
 # FLASK APP
+# ==========================================
 app = Flask(__name__)
 
+
+# ==========================================
 # UPLOAD FOLDER
+# ==========================================
 UPLOAD_FOLDER = "uploads"
 
 app.config["UPLOAD_FOLDER"] = UPLOAD_FOLDER
 
-# CREATE uploads FOLDER
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 
-# BUILD RAG
-knowledge, llm = build_rag()
 
+# ==========================================
+# LOAD RAG + AI MODEL
+# ==========================================
+try:
+    knowledge, llm = build_rag()
+    rag_error = None
+
+except Exception as e:
+    knowledge = ""
+    llm = None
+    rag_error = str(e)
+
+
+# ==========================================
 # LOAD HTML
+# ==========================================
 with open("index.html", "r", encoding="utf-8") as file:
     html_template = file.read()
 
+
+# ==========================================
 # LOAD CSS
+# ==========================================
 with open("style.css", "r", encoding="utf-8") as file:
     css = file.read()
 
 
+# ==========================================
+# HOME ROUTE
+# ==========================================
 @app.route("/", methods=["GET", "POST"])
 def index():
 
@@ -41,33 +69,53 @@ def index():
 
         try:
 
-            # GET FILE
+            # Check AI configuration
+            if llm is None:
+                result = f"AI configuration error: {rag_error}"
+                return render_page(result)
+
+            # Check uploaded file
+            if "resume" not in request.files:
+                result = "Please upload a PDF resume."
+                return render_page(result)
+
             file = request.files["resume"]
 
-            # CHECK FILE
+            # Check filename
             if file.filename == "":
-
                 result = "Please upload a PDF resume."
+                return render_page(result)
 
-            else:
+            # Only allow PDF
+            if not file.filename.lower().endswith(".pdf"):
+                result = "Only PDF files are supported."
+                return render_page(result)
 
-                # FILE PATH
-                filepath = os.path.join(
-                    app.config["UPLOAD_FOLDER"],
-                    file.filename
-                )
+            # Secure filename
+            filename = os.path.basename(file.filename)
 
-                # SAVE FILE
-                file.save(filepath)
+            filepath = os.path.join(
+                app.config["UPLOAD_FOLDER"],
+                filename
+            )
 
-                # EXTRACT RESUME TEXT
-                resume_text = extract_text_from_pdf(filepath)
+            # Save uploaded file
+            file.save(filepath)
 
-                # PROMPT
-                prompt = f"""
+            # Extract resume text
+            resume_text = extract_text_from_pdf(filepath)
+
+            if not resume_text.strip():
+                result = "Could not extract text from the PDF."
+                return render_page(result)
+
+            # ==========================================
+            # AI PROMPT
+            # ==========================================
+            prompt = f"""
 You are an Advanced AI Resume Analyzer and HR Assistant.
 
-Use the HR knowledge below while analyzing.
+Use the HR knowledge below while analyzing the resume.
 
 HR KNOWLEDGE:
 {knowledge}
@@ -75,31 +123,40 @@ HR KNOWLEDGE:
 RESUME:
 {resume_text}
 
-Analyze and provide:
+Analyze the resume and provide:
 
 1. Resume Summary
 2. Technical Skills
 3. Missing Skills
 4. ATS Score out of 100
 5. HR Interview Questions
-6. Technical Questions
+6. Technical Interview Questions
 7. Resume Improvements
 8. Job Recommendations
 9. Final Suggestions
 
-Give professional output.
+Give professional, clear and structured output.
 """
 
-                # AI RESPONSE
-                response = llm.invoke(prompt)
+            # ==========================================
+            # AI RESPONSE
+            # ==========================================
+            response = llm.invoke(prompt)
 
-                result = response.content
+            result = response.content
 
         except Exception as e:
 
             result = f"Error: {str(e)}"
 
-    # ADD CSS TO HTML
+    return render_page(result)
+
+
+# ==========================================
+# RENDER PAGE
+# ==========================================
+def render_page(result=""):
+
     final_html = html_template.replace(
         "</head>",
         f"<style>{css}</style></head>"
@@ -111,6 +168,13 @@ Give professional output.
     )
 
 
+# ==========================================
+# LOCAL DEVELOPMENT
+# ==========================================
 if __name__ == "__main__":
-
-    app.run(debug=True)
+    app.run(
+        host="0.0.0.0",
+        port=int(os.environ.get("PORT", 5000)),
+        debug=False
+    )
+```
