@@ -1,4 +1,4 @@
-```python
+
 import os
 
 from dotenv import load_dotenv
@@ -32,4 +32,4 @@ def build_rag():
     )
 
     return knowledge, llm
-```
+
