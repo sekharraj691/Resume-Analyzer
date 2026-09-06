@@ -10,4 +10,5 @@ pypdf
 PyPDF2
 firebase-admin
 gunicorn
-langchain-groq
+
+
